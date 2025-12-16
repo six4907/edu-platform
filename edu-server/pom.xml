@@ -10,11 +10,86 @@
     </parent>
 
     <artifactId>edu-server</artifactId>
+    <name>edu-server</name>
+    <description>启动模块（包含 Spring Boot 主类）</description>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <!-- 与父工程保持一致的 JDK 版本（父工程已改为 11，这里同步） -->
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- 统一 Swagger/Knife4j 版本（适配 Spring Boot 2.7.x） -->
+        <knife4j.version>3.0.3</knife4j.version>
     </properties>
 
+    <dependencies>
+        <!-- Spring Boot Web 核心依赖（提供 MVC、Tomcat 等） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- MySQL 驱动（继承父工程版本） -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <!-- MyBatis 整合 Spring Boot（继承父工程版本） -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- 接口文档：使用 Knife4j（Swagger 增强版，解决 2.7.x 兼容性问题） -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <version>${knife4j.version}</version>
+        </dependency>
+
+        <!-- 引入公共模块 -->
+        <dependency>
+            <groupId>com.edu.platform</groupId>
+            <artifactId>edu-common</artifactId>
+        </dependency>
+
+        <!-- Spring Boot 测试依赖（可选） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- PageHelper 分页插件（Spring Boot 专用） -->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.4.6</version> <!-- 稳定版本，兼容 Spring Boot 2.x/3.x -->
+        </dependency>
+        <dependency>
+            <groupId>com.edu.platform</groupId>
+            <artifactId>edu-pojo</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Spring Boot 打包插件（仅在启动模块配置） -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- 替换为你的主类全路径（必须存在，否则启动失败） -->
+                    <mainClass>com.edu.platform.EduServerApplication</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal> <!-- 打包为可执行 JAR -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

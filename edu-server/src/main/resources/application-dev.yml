@@ -1,0 +1,8 @@
+# 开发环境配置：仅存放数据源等环境专属配置（继承主配置文件的通用配置）
+spring:
+  datasource:
+    # 开发环境数据源（数据库名统一为 edu_platform，下划线格式）
+    url: jdbc:mysql://localhost:3306/edu_platform?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
+    username: root # 开发环境数据库账号
+    password: 123456 # 开发环境数据库密码
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL8.0驱动

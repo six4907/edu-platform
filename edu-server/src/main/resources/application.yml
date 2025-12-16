@@ -1,0 +1,34 @@
+# 注意空格：冒号后面的值必须有一个空格
+# 主配置文件：存放所有环境通用配置（端口、MyBatis、JWT、Jackson等）
+spring:
+  profiles:
+    active: dev # 激活开发环境（指定使用 application-dev.yml）
+  main:
+    allow-circular-references: true # 允许循环依赖（兼容旧版Spring Boot）
+  jackson:
+    time-zone: GMT+8 # 时区配置（统一日期格式）
+    date-format: yyyy-MM-dd HH:mm:ss # 统一日期返回格式
+
+# MyBatis 配置
+mybatis:
+  mapper-locations: classpath:mapper/*.xml # 映射文件路径
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 打印SQL日志（开发环境必备）
+    map-underscore-to-camel-case: true # 下划线转驼峰（数据库 create_time → 实体类 createTime）
+
+# PageHelper 分页插件配置
+pagehelper:
+  reasonable: true # 合理化分页（页码<=0查第1页，>总页数查最后1页）
+  support-methods-arguments: true # 支持Mapper参数传递分页参数
+
+# 服务器配置
+server:
+  port: 8080 # 项目启动端口（所有环境通用）
+
+# JWT 配置（所有环境通用）
+edu:
+  jwt:
+    # 修复：密钥长度≥32个UTF-8字符（示例：32位随机字符串）
+    secretKey: edu-platform-2025-secret-key-xxxxxx-yyyyyy-zzzzzz12
+    ttl: 86400000 # 24小时有效期（单位：毫秒）
+    tokenName: Authorization # 显式声明请求头名称，和JwtProperties对齐

@@ -7,90 +7,121 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>edu-platform</name>
-    <description>在线教育平台</description>
+    <description>在线教育平台父工程</description>
+
+    <!-- 子模块声明 -->
     <modules>
         <module>edu-common</module>
         <module>edu-pojo</module>
         <module>edu-server</module>
     </modules>
 
+    <!-- Spring Boot 父依赖（统一管理版本） -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.18</version> <!-- 适配 Java 11/17，稳定版本 -->
+        <relativePath/>
+    </parent>
+
+    <!-- 版本属性管理（集中维护版本号） -->
     <properties>
-        <java.version>17</java.version>
+        <java.version>11</java.version> <!-- 改为你的 JDK 版本（11），与本地 JDK 一致 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring-boot.version>2.7.18</spring-boot.version>
-        <mybatis.version>2.2.2</mybatis.version> <!-- 修改此行 -->
+        <!-- 第三方依赖版本 -->
+        <mybatis.version>2.2.2</mybatis.version>
         <lombok.version>1.18.30</lombok.version>
+        <mysql.version>8.0.33</mysql.version>
+        <!-- JJWT 版本：统一为 0.11.5（与 edu-common 一致，避免冲突） -->
+        <jjwt.version>0.11.5</jjwt.version>
     </properties>
 
-
-    <!-- 仅做依赖版本管理，不直接引入依赖 -->
+    <!-- 依赖版本管理（仅声明版本，子模块需显式引入） -->
     <dependencyManagement>
         <dependencies>
-            <!-- Spring Boot依赖管理 -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- MyBatis依赖管理 -->
+            <!-- MyBatis -->
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
                 <version>${mybatis.version}</version>
             </dependency>
-            <!-- Lombok依赖管理 -->
+
+            <!-- Lombok -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
-            <!-- 子模块依赖管理 -->
+
+            <!-- MySQL 驱动 -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+
+            <!-- JJWT（统一为 0.11.5 版本，与 edu-common 依赖匹配） -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jjwt.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <!-- 子模块依赖（供其他子模块引用） -->
             <dependency>
                 <groupId>com.edu.platform</groupId>
                 <artifactId>edu-common</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.edu.platform</groupId>
                 <artifactId>edu-pojo</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
+    <!-- 父工程公共依赖（所有子模块继承） -->
     <dependencies>
+        <!-- Spring Boot 核心 starter -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
+        <!-- 测试依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
+
+        <!-- 配置文件处理器（生成配置元数据） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
+            <optional>true</optional> <!-- 不传递给子模块 -->
         </dependency>
-        <!--        当依赖被标记为<optional>true</optional>时，表示该依赖不会通过项目继承或模块引用传递给下游项目-->
+
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -98,7 +129,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version> <!-- 适配Java17的插件版本 -->
+                <version>3.11.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>

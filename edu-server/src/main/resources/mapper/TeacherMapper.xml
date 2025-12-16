@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.platform.mapper.TeacherMapper">
+    <!-- 根据教师ID查询课程 -->
+    <select id="getCourse" parameterType="java.lang.Long" resultType="com.edu.platform.entity.Course">
+        SELECT id, title, cover, category_id, teacher_id, price, description, status,start_time, end_time, create_time, update_time
+        FROM edu_course
+        WHERE teacher_id = #{id}
+    </select>
+
+    <!-- 根据ID查询教师 -->
+    <update id="updateTeacher">
+        UPDATE edu_teacher
+        <set>
+            <!-- 标题：非空才更新 -->
+            <if test="teacher.title != null and teacher.title != ''">
+                title = #{teacher.title},
+            </if>
+            <!-- 简介：非空才更新 -->
+            <if test="teacher.introduction != null and teacher.introduction != ''">
+                introduction = #{teacher.introduction},
+            </if>
+            <!-- 教龄：非空才更新（Integer类型，只需判断null） -->
+            <if test="teacher.teachingYears != null">
+                teaching_years = #{teacher.teachingYears},
+            </if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateUser">
+        UPDATE edu_user
+        <set>
+            <!-- 昵称：非空才更新 -->
+            <if test="teacher.nickName != null and teacher.nickName != ''">
+                nickname = #{teacher.nickName},
+            </if>
+            <!-- 头像：非空才更新 -->
+            <if test="teacher.avatar != null and teacher.avatar != ''">
+                avatar = #{teacher.avatar},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+</mapper>

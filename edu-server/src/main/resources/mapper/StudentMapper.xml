@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.platform.mapper.StudentMapper">
+
+    <select id="selectSelectedCourses" parameterType="java.lang.Long" resultType="com.edu.platform.entity.Course">
+        select
+            ec.id,
+            ec.title,
+            ec.cover,
+            ec.price,
+            ec.status,
+            et.real_name as teacherName,
+            ee.enroll_time as enrollTime
+        from edu_enroll ee
+                 left join edu_course ec on ee.course_id = ec.id
+                 left join edu_teacher et on ec.teacher_id = et.user_id
+        where ee.student_id = #{studentId}
+          and ee.status = 1  -- 只查询有效选课记录
+        order by ee.enroll_time desc
+    </select>
+
+</mapper>
