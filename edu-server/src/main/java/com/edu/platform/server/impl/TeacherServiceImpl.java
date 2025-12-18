@@ -21,13 +21,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@Slf4j // 新增日志注解，便于排查登录相关问题
+@Slf4j
 public class TeacherServiceImpl implements TeacherService {
     @Autowired
     private TeacherMapper teacherMapper;
 
     LocalDateTime updateTime = LocalDateTime.now();
 
+    /**
+     * 教师信息修改
+     * @param teacherUpdateDTO
+     * @return
+     */
     @Transactional
     public TeacherVO update(@RequestBody TeacherUpdateDTO teacherUpdateDTO, long id) {
         log.info("用户信息修改请求：{}", teacherUpdateDTO);
@@ -88,7 +93,11 @@ public class TeacherServiceImpl implements TeacherService {
                 .build();
     }
 
-
+    /**
+     * 获取教师信息
+     * @param id
+     * @return
+     */
     public TeacherInfoVO get(Long id) {
         log.info("教师信息获取");
         Teacher teacher1 = teacherMapper.getById(id);
@@ -108,7 +117,11 @@ public class TeacherServiceImpl implements TeacherService {
         return teacherInfoVO;
     }
 
-
+    /**
+     * 获取教师课程
+     * @param id
+     * @return
+     */
     public List<Course> getCourse(long id) {
         log.info("教师课程获取");
         Teacher teacher = teacherMapper.get(id);

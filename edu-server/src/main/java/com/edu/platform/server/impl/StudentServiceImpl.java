@@ -148,14 +148,14 @@ public class StudentServiceImpl implements StudentService {
     @Transactional
     public void quitCourse(Long courseId) {
         Long studentId = BaseContext.getUserId();
-
+        Student student = studentMapper.getById(studentId);
         // 1. 参数校验
-        if (studentId == null || courseId == null) {
+        if (student.getId() == null || courseId == null) {
             throw new IllegalArgumentException("学生ID和课程ID不能为空");
         }
 
         // 2. 校验学生是否选了该课程（且状态为已选课）
-        Enroll enroll= studentMapper.selectByStudentIdAndCourseId(studentId, courseId);
+        Enroll enroll= studentMapper.selectByStudentIdAndCourseId(student.getId(), courseId);
         if (enroll == null) {
             throw new RuntimeException("未找到该学生的选课记录，无法退课");
         }
@@ -168,7 +168,7 @@ public class StudentServiceImpl implements StudentService {
          }
 
         // 4. 执行退课（更新状态）
-        int affectedRows = studentMapper.updateStatusToQuit(studentId, courseId);
+        int affectedRows = studentMapper.updateStatusToQuit(student.getId(), courseId);
         if (affectedRows == 0) {
             throw new RuntimeException("退课失败，请重试");
         }
@@ -183,12 +183,13 @@ public class StudentServiceImpl implements StudentService {
      */
     public PageResult getSelectedCourses(Long studentId, int pageNum, int pageSize) {
         log.info("分页查询学生已选课程：studentId={}, pageNum={}, pageSize={}", studentId, pageNum, pageSize);
+        Student student = studentMapper.getById(studentId);
 
         // 开启分页
         PageHelper.startPage(pageNum, pageSize);
 
         // 查询已选课程（关联课程表和教师表）
-        Page<Course> page = studentMapper.selectSelectedCourses(studentId);
+        Page<Course> page = studentMapper.selectSelectedCourses(student.getId());
 
         List<Course> records = page.getResult();
         // 封装分页结果

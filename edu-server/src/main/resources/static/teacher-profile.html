@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教师信息 - EduPlatform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="common.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#722ED1',
+            success: '#52C41A',
+            warning: '#FAAD14',
+            danger: '#FF4D4F',
+            dark: '#1D2129',
+            light: '#F2F3F5'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+</head>
+<body class="font-inter bg-gray-50 text-dark">
+<!-- 导航栏 -->
+<header id="navbar" class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center">
+        <a href="index.html" class="flex items-center">
+          <i class="fa fa-graduation-cap text-primary text-2xl mr-2"></i>
+          <span class="text-xl font-bold text-primary">EduPlatform</span>
+        </a>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <a href="index.html" class="text-gray-600 hover:text-primary font-medium transition-colors">返回首页</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="pt-16 min-h-screen">
+  <section class="py-16">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm p-8">
+        <h2 class="text-2xl font-bold mb-6 text-center">完善教师信息</h2>
+
+        <form id="teacherProfileForm">
+          <div class="mb-5">
+            <label class="block text-gray-700 mb-2">昵称</label>
+            <div id="teacherNameDisplay" class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50">
+              <!-- 教师姓名将在这里显示 -->
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <label class="block text-gray-700 mb-2">职称</label>
+            <!-- 修复拼写错误：teachertitleDisplay → teacherTitleDisplay（驼峰命名规范） -->
+            <div id="teacherTitleDisplay" class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50">
+              <!-- 教师职称将在这里显示 -->
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <label class="block text-gray-700 mb-2">教龄</label>
+            <!-- 修复拼写错误：teacheringYearDisplay → teachingYearDisplay -->
+            <div id="teachingYearDisplay" class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50">
+              <!-- 教师教龄将在这里显示 -->
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <label class="block text-gray-700 mb-2">简介</label>
+            <div id="teacherDescDisplay" class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 min-h-[100px]">
+              <!-- 教师简介将在这里显示 -->
+            </div>
+          </div>
+        </form>
+
+        <form id="teacherProfilenewForm">
+          <div class="mb-5">
+            <label class="block text-gray-700 mb-2">昵称</label>
+            <input type="text" id="teacherNamenewInput" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入姓名">
+          </div>
+
+          <div class="mb-5">
+            <label class="block text-gray-700 mb-2">职称</label>
+            <input type="text" id="teacherTitlenewInput" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入职称">
+          </div>
+
+          <div class="mb-5">
+            <label class="block text-gray-700 mb-2">教龄</label>
+            <input type="number" id="teachingYearsnewInput" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入教龄（年）">
+          </div>
+
+          <div class="mb-5">
+            <label class="block text-gray-700 mb-2">简介</label>
+            <textarea id="teacherDescnewInput" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" rows="4" placeholder="请输入简介"></textarea>
+          </div>
+
+          <div class="flex justify-center space-x-4 mt-8">
+            <button type="button" onclick="history.back()" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">返回</button>
+            <button type="submit" class="px-6 py-2 bg-primary text-white font-medium rounded-md hover:bg-primary/90 transition-colors">保存信息</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="bg-dark text-white py-8">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <p class="text-gray-400">© 2023 EduPlatform. 保留所有权利。</p>
+  </div>
+</footer>
+
+<script>
+  // 页面加载时获取并填充教师信息
+  window.addEventListener('DOMContentLoaded', function() {
+    fetchTeacherInfo();
+  });
+
+  // 获取教师信息
+  async function fetchTeacherInfo() {
+    try {
+      const response = await fetch('/api/teacher/getInfo', {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+// 在 fetchTeacherInfo 函数的成功回调中修改为：
+      if (response.ok && result.code === 200) {
+        // 填充表单字段（用 textContent 替代 value）
+        document.getElementById('teacherNameDisplay').textContent = result.data.realName || '未填写';
+        document.getElementById('teacherTitleDisplay').textContent = result.data.title || '未填写';
+        document.getElementById('teachingYearDisplay').textContent = result.data.teachingYears ? `${result.data.teachingYears} 年` : '未填写';
+        document.getElementById('teacherDescDisplay').textContent = result.data.introduction || '未填写';
+      } else {
+        console.error('获取教师信息失败:', result.msg);
+      }
+    } catch (error) {
+      console.error('获取教师信息时发生错误:', error);
+    }
+  }
+
+  // 表单提交处理
+  document.getElementById('teacherProfilenewForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // 收集表单数据
+    const formData = {
+      realName: document.getElementById('teacherNamenewInput').value,
+      title: document.getElementById('teacherTitlenewInput').value,
+      teachingYears: document.getElementById('teachingYearsnewInput').value,
+      introduction: document.getElementById('teacherDescnewInput').value
+    };
+
+    try {
+      const response = await fetch('/api/teacher/update', {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.code === 200) {
+        alert('教师信息保存成功！');
+        // 返回上一页或者跳转到其他页面
+        window.location.href = 'index.html';
+      } else {
+        alert('保存失败: ' + result.msg);
+      }
+    } catch (error) {
+      console.error('保存教师信息时发生错误:', error);
+      alert('网络错误，保存失败');
+    }
+  });
+</script>
+</body>
+</html>

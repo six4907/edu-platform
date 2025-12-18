@@ -33,6 +33,13 @@ public class JacksonObjectMapper extends ObjectMapper {
     /** 时间格式（如：19:30:00）- 用于课时时长、直播开始时间等 */
     public static final String DEFAULT_TIME_FORMAT = "HH:mm:ss";
 
+    // 支持多种日期时间格式
+    private static final DateTimeFormatter[] SUPPORTED_FORMATTERS = {
+            DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT),
+            DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+    };
+
     public JacksonObjectMapper() {
         super();
 

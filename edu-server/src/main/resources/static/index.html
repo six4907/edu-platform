@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>在线教育平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#722ED1',
+            success: '#52C41A',
+            warning: '#FAAD14',
+            danger: '#FF4D4F',
+            dark: '#1D2129',
+            light: '#F2F3F5'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+
+
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  </style>
+  <!-- 引入公共样式 -->
+  <link rel="stylesheet" href="common.css">
+</head>
+<body class="font-inter bg-gray-50 text-dark">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="flex items-center">
+          <a href="#" class="flex items-center">
+            <i class="fa fa-graduation-cap text-primary text-2xl mr-2"></i>
+            <span class="text-xl font-bold text-primary">EduPlatform</span>
+          </a>
+        </div>
+        
+        <!-- 导航链接 - 桌面端 -->
+        <nav class="hidden md:flex space-x-8">
+          <a href="#courses" class="text-gray-600 hover:text-primary font-medium transition-colors">课程</a>
+          <a href="#categories" class="text-gray-600 hover:text-primary font-medium transition-colors">分类</a>
+          <a href="#teachers" class="text-gray-600 hover:text-primary font-medium transition-colors">教师</a>
+          <a href="#about" class="text-gray-600 hover:text-primary font-medium transition-colors">关于我们</a>
+        </nav>
+        
+        <!-- 用户操作 -->
+        <div class="flex items-center space-x-4">
+          <button id="searchBtn" class="p-2 text-gray-600 hover:text-primary transition-colors">
+            <i class="fa fa-search"></i>
+          </button>
+          <button id="loginBtn" class="hidden sm:block px-4 py-2 text-primary border border-primary rounded-md hover:bg-primary/5 transition-colors">登录</button>
+          <button id="registerBtn" class="hidden sm:block px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">注册</button>
+          
+          <!-- 用户菜单 (登录后显示) -->
+
+          <!--学生-->
+          <div id="studentUserMenu" class="hidden relative">
+            <button class="flex items-center space-x-2 focus:outline-none">
+              <img src="https://picsum.photos/id/64/40/40" alt="学生头像" class="w-8 h-8 rounded-full object-cover border-2 border-primary">
+              <span class="hidden sm:inline font-medium">学生昵称</span>
+              <i class="fa fa-angle-down text-gray-500"></i>
+            </button>
+            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+              <a href="student-profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">完善学生信息</a>
+              <a href="student-myCourses.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">我的课程</a>
+              <a href="student-settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">账号设置</a>
+              <div class="border-t border-gray-100"></div>
+              <a href="#" id="studentLogoutBtn" class="block px-4 py-2 text-sm text-danger hover:bg-gray-100">退出登录</a>
+            </div>
+          </div>
+
+          <!--教师-->
+          <div id="teacherUserMenu" class="hidden relative">
+            <button class="flex items-center space-x-2 focus:outline-none">
+              <img src="https://picsum.photos/id/91/40/40" alt="教师头像" class="w-8 h-8 rounded-full object-cover border-2 border-primary">
+              <span class="hidden sm:inline font-medium">教师昵称</span>
+              <i class="fa fa-angle-down text-gray-500"></i>
+            </button>
+            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+              <a href="teacher-profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">完善教师信息</a>
+              <a href="teacher-courses.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">我的授课</a>
+              <a href="teacher-settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">账号设置</a>
+              <div class="border-t border-gray-100"></div>
+              <a href="#" id="teacherLogoutBtn" class="block px-4 py-2 text-sm text-danger hover:bg-gray-100">退出登录</a>
+            </div>
+          </div>
+            <!--管理员-->
+          <div id="adminUserMenu" class="hidden relative">
+            <button class="flex items-center space-x-2 focus:outline-none">
+              <img src="https://picsum.photos/id/1005/40/40" alt="管理员头像" class="w-8 h-8 rounded-full object-cover border-2 border-primary">
+              <span class="hidden sm:inline font-medium">管理员</span>
+              <i class="fa fa-angle-down text-gray-500"></i>
+            </button>
+            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+              <a href="admin-userManage.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">用户管理</a>
+              <a href="admin-systemSettings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">系统设置</a>
+              <div class="border-t border-gray-100"></div>
+              <a href="#" id="adminLogoutBtn" class="block px-4 py-2 text-sm text-danger hover:bg-gray-100">退出登录</a>
+            </div>
+          </div>
+
+
+
+
+
+
+          <!-- 移动端菜单按钮 -->
+          <button id="mobileMenuBtn" class="md:hidden p-2 text-gray-600 hover:text-primary">
+            <i class="fa fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 移动端菜单 -->
+    <div id="mobileMenu" class="md:hidden hidden bg-white border-t">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="#courses" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50">课程</a>
+        <a href="#categories" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50">分类</a>
+        <a href="#teachers" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50">教师</a>
+        <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50">关于我们</a>
+        <div class="flex space-x-2 px-3 py-2">
+          <button id="mobileLoginBtn" class="flex-1 px-4 py-2 text-primary border border-primary rounded-md hover:bg-primary/5 transition-colors">登录</button>
+          <button id="mobileRegisterBtn" class="flex-1 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">注册</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 搜索框 -->
+    <div id="searchBox" class="hidden bg-gray-50 border-t">
+      <div class="container mx-auto px-4 py-3">
+        <div class="relative">
+          <input type="text" placeholder="搜索课程、教师或分类..." class="w-full py-3 px-4 pr-10 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+          <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary">
+            <i class="fa fa-search text-lg"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-16">
+    <!-- 英雄区域 -->
+    <section class="bg-gradient-to-r from-primary to-accent text-white py-16 md:py-24">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl">
+          <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-shadow mb-4">
+            发现优质教育，<br>开启学习新旅程
+          </h1>
+          <p class="text-[clamp(1rem,2vw,1.25rem)] text-white/90 mb-8 max-w-2xl">
+            汇聚海量精品课程，随时随地学习，专业教师团队为您提供个性化指导，助您实现目标。
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="courses.html" style="text-decoration: none;">
+              <button class="px-6 py-3 bg-white text-primary font-medium rounded-md hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
+                浏览全部课程
+              </button>
+            </a>
+            <button class="px-6 py-3 bg-transparent border-2 border-white text-white font-medium rounded-md hover:bg-white/10 transition-colors">
+              了解更多 <i class="fa fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 统计数据 -->
+    <section class="bg-white py-12">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div class="p-6">
+            <div class="text-4xl font-bold text-primary mb-2">500+</div>
+            <div class="text-gray-600">精品课程</div>
+          </div>
+          <div class="p-6">
+            <div class="text-4xl font-bold text-primary mb-2">100+</div>
+            <div class="text-gray-600">专业教师</div>
+          </div>
+          <div class="p-6">
+            <div class="text-4xl font-bold text-primary mb-2">10k+</div>
+            <div class="text-gray-600">注册学员</div>
+          </div>
+          <div class="p-6">
+            <div class="text-4xl font-bold text-primary mb-2">98%</div>
+            <div class="text-gray-600">满意度</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 课程分类 -->
+    <section id="categories" class="py-16 bg-light">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">探索课程分类</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">选择您感兴趣的领域，发现适合您的优质课程</p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <a href="#" class="bg-white rounded-xl p-6 text-center shadow-sm card-hover">
+            <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fa fa-laptop text-primary text-xl"></i>
+            </div>
+            <h3 class="font-medium">编程开发</h3>
+          </a>
+          <a href="#" class="bg-white rounded-xl p-6 text-center shadow-sm card-hover">
+            <div class="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fa fa-line-chart text-secondary text-xl"></i>
+            </div>
+            <h3 class="font-medium">商业管理</h3>
+          </a>
+          <a href="#" class="bg-white rounded-xl p-6 text-center shadow-sm card-hover">
+            <div class="w-14 h-14 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fa fa-paint-brush text-accent text-xl"></i>
+            </div>
+            <h3 class="font-medium">设计创意</h3>
+          </a>
+          <a href="#" class="bg-white rounded-xl p-6 text-center shadow-sm card-hover">
+            <div class="w-14 h-14 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fa fa-language text-success text-xl"></i>
+            </div>
+            <h3 class="font-medium">语言学习</h3>
+          </a>
+          <a href="#" class="bg-white rounded-xl p-6 text-center shadow-sm card-hover">
+            <div class="w-14 h-14 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fa fa-briefcase text-warning text-xl"></i>
+            </div>
+            <h3 class="font-medium">职业技能</h3>
+          </a>
+          <a href="#" class="bg-white rounded-xl p-6 text-center shadow-sm card-hover">
+            <div class="w-14 h-14 bg-danger/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fa fa-graduation-cap text-danger text-xl"></i>
+            </div>
+            <h3 class="font-medium">学术教育</h3>
+          </a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 热门课程 -->
+    <section id="courses" class="py-16 bg-white">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+          <div>
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">热门推荐课程</h2>
+            <p class="text-gray-600 max-w-2xl">精选优质课程，帮助您快速提升技能</p>
+          </div>
+          <div class="mt-4 md:mt-0 flex space-x-2">
+            <button class="px-4 py-2 bg-primary text-white rounded-md">全部</button>
+            <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">最新</button>
+            <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">最热</button>
+            <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">好评</button>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <!-- 课程卡片 1 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover border border-gray-100">
+            <div class="relative">
+              <img src="https://picsum.photos/id/0/600/400" alt="Java编程基础" class="w-full h-48 object-cover">
+              <div class="absolute top-3 right-3 bg-primary text-white text-xs px-2 py-1 rounded">热门</div>
+            </div>
+            <div class="p-5">
+              <div class="flex items-center text-sm text-gray-500 mb-2">
+                <span class="bg-blue-50 text-primary px-2 py-0.5 rounded mr-2">编程开发</span>
+                <span class="flex items-center"><i class="fa fa-user-o mr-1"></i> 李教授</span>
+              </div>
+              <h3 class="font-semibold text-lg mb-2 line-clamp-1">Java编程基础从入门到精通</h3>
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">零基础学习Java编程，掌握面向对象编程思想，适合编程初学者入门。</p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="text-warning flex">
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star-half-o"></i>
+                  </div>
+                  <span class="text-gray-500 text-sm ml-1">(128)</span>
+                </div>
+                <div class="font-bold text-primary">¥199</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 课程卡片 2 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover border border-gray-100">
+            <div class="relative">
+              <img src="https://picsum.photos/id/160/600/400" alt="数据分析" class="w-full h-48 object-cover">
+              <div class="absolute top-3 right-3 bg-success text-white text-xs px-2 py-1 rounded">新课</div>
+            </div>
+            <div class="p-5">
+              <div class="flex items-center text-sm text-gray-500 mb-2">
+                <span class="bg-green-50 text-success px-2 py-0.5 rounded mr-2">数据科学</span>
+                <span class="flex items-center"><i class="fa fa-user-o mr-1"></i> 王老师</span>
+              </div>
+              <h3 class="font-semibold text-lg mb-2 line-clamp-1">Python数据分析与可视化</h3>
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">学习使用Python进行数据处理、分析和可视化，掌握数据分析核心技能。</p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="text-warning flex">
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star-o"></i>
+                  </div>
+                  <span class="text-gray-500 text-sm ml-1">(86)</span>
+                </div>
+                <div class="font-bold text-primary">¥299</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 课程卡片 3 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover border border-gray-100">
+            <div class="relative">
+              <img src="https://picsum.photos/id/96/600/400" alt="UI设计" class="w-full h-48 object-cover">
+            </div>
+            <div class="p-5">
+              <div class="flex items-center text-sm text-gray-500 mb-2">
+                <span class="bg-purple-50 text-accent px-2 py-0.5 rounded mr-2">设计创意</span>
+                <span class="flex items-center"><i class="fa fa-user-o mr-1"></i> 张设计师</span>
+              </div>
+              <h3 class="font-semibold text-lg mb-2 line-clamp-1">UI/UX设计实战课程</h3>
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">从设计原理到实战项目，全面掌握用户界面和用户体验设计技能。</p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="text-warning flex">
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                  </div>
+                  <span class="text-gray-500 text-sm ml-1">(215)</span>
+                </div>
+                <div class="font-bold text-primary">¥399</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 课程卡片 4 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover border border-gray-100">
+            <div class="relative">
+              <img src="https://picsum.photos/id/180/600/400" alt="商务英语" class="w-full h-48 object-cover">
+            </div>
+            <div class="p-5">
+              <div class="flex items-center text-sm text-gray-500 mb-2">
+                <span class="bg-yellow-50 text-warning px-2 py-0.5 rounded mr-2">语言学习</span>
+                <span class="flex items-center"><i class="fa fa-user-o mr-1"></i> 刘老师</span>
+              </div>
+              <h3 class="font-semibold text-lg mb-2 line-clamp-1">商务英语听说实战</h3>
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">提升商务场景下的英语听说能力，掌握商务谈判和演讲技巧。</p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="text-warning flex">
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star-half-o"></i>
+                    <i class="fa fa-star-o"></i>
+                  </div>
+                  <span class="text-gray-500 text-sm ml-1">(156)</span>
+                </div>
+                <div class="font-bold text-primary">¥249</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center mt-10">
+          <a href="courses.html" class="px-6 py-3 border border-primary text-primary font-medium rounded-md hover:bg-primary/5 transition-colors inline-block">
+            查看更多课程 <i class="fa fa-arrow-right ml-1"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 优秀教师 -->
+    <section id="teachers" class="py-16 bg-light">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">专业教师团队</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">来自行业一线的专业教师，为您提供优质的教学服务</p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- 教师卡片 1 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover text-center p-6">
+            <img src="https://picsum.photos/id/1005/300/300" alt="李教授" class="w-32 h-32 rounded-full object-cover mx-auto mb-4 border-4 border-primary/10">
+            <h3 class="font-semibold text-lg mb-1">李明教授</h3>
+            <p class="text-primary text-sm mb-3">计算机科学 · 博士</p>
+            <p class="text-gray-600 text-sm mb-4">前谷歌高级工程师，10年Java教学经验，出版多部编程教材。</p>
+            <div class="flex justify-center space-x-3">
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-linkedin"></i></a>
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-github"></i></a>
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-envelope-o"></i></a>
+            </div>
+          </div>
+          
+          <!-- 教师卡片 2 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover text-center p-6">
+            <img src="https://picsum.photos/id/1011/300/300" alt="王老师" class="w-32 h-32 rounded-full object-cover mx-auto mb-4 border-4 border-primary/10">
+            <h3 class="font-semibold text-lg mb-1">王丽老师</h3>
+            <p class="text-primary text-sm mb-3">数据科学 · 硕士</p>
+            <p class="text-gray-600 text-sm mb-4">资深数据分析师，5年Python教学经验，擅长数据分析实战教学。</p>
+            <div class="flex justify-center space-x-3">
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-linkedin"></i></a>
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-github"></i></a>
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-envelope-o"></i></a>
+            </div>
+          </div>
+          
+          <!-- 教师卡片 3 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover text-center p-6">
+            <img src="https://picsum.photos/id/1027/300/300" alt="张设计师" class="w-32 h-32 rounded-full object-cover mx-auto mb-4 border-4 border-primary/10">
+            <h3 class="font-semibold text-lg mb-1">张伟设计师</h3>
+            <p class="text-primary text-sm mb-3">UI/UX设计 · 专家</p>
+            <p class="text-gray-600 text-sm mb-4">资深UI/UX设计师，曾任职于知名互联网公司，8年设计教学经验。</p>
+            <div class="flex justify-center space-x-3">
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-linkedin"></i></a>
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-dribbble"></i></a>
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-envelope-o"></i></a>
+            </div>
+          </div>
+          
+          <!-- 教师卡片 4 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover text-center p-6">
+            <img src="https://picsum.photos/id/1000/300/300" alt="刘老师" class="w-32 h-32 rounded-full object-cover mx-auto mb-4 border-4 border-primary/10">
+            <h3 class="font-semibold text-lg mb-1">刘洋老师</h3>
+            <p class="text-primary text-sm mb-3">英语教育 · 硕士</p>
+            <p class="text-gray-600 text-sm mb-4">资深英语教师，10年商务英语教学经验，持有TESOL国际教师资格证。</p>
+            <div class="flex justify-center space-x-3">
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-linkedin"></i></a>
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-twitter"></i></a>
+              <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-envelope-o"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 学习数据 -->
+    <section class="py-16 bg-white">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">学习数据概览</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">了解平台学习数据，选择最适合您的学习路径</p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <h3 class="text-lg font-semibold mb-4">课程分类分布</h3>
+            <div class="h-80">
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <h3 class="text-lg font-semibold mb-4">学习时长统计</h3>
+            <div class="h-80">
+              <canvas id="learningTimeChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 学生评价 -->
+    <section class="py-16 bg-light">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">学员心声</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">听听已经学习过的学员怎么说</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- 评价卡片 1 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+            <div class="text-warning flex mb-4">
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+            </div>
+            <p class="text-gray-600 mb-6">"Java课程内容非常丰富，老师讲解清晰，从基础到进阶都有覆盖。我通过这门课程成功转行成为一名Java开发工程师，非常感谢平台提供的优质教育资源。"</p>
+            <div class="flex items-center">
+              <img src="https://picsum.photos/id/1025/100/100" alt="学员头像" class="w-12 h-12 rounded-full object-cover mr-4">
+              <div>
+                <h4 class="font-medium">陈同学</h4>
+                <p class="text-gray-500 text-sm">Java开发工程师</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 评价卡片 2 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+            <div class="text-warning flex mb-4">
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star-half-o"></i>
+            </div>
+            <p class="text-gray-600 mb-6">"Python数据分析课程非常实用，案例都来自实际工作场景。学完之后我能独立完成公司的数据报告，工作效率提升了很多，工资也涨了不少。"</p>
+            <div class="flex items-center">
+              <img src="https://picsum.photos/id/1066/100/100" alt="学员头像" class="w-12 h-12 rounded-full object-cover mr-4">
+              <div>
+                <h4 class="font-medium">林同学</h4>
+                <p class="text-gray-500 text-sm">数据分析师</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 评价卡片 3 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+            <div class="text-warning flex mb-4">
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+            </div>
+            <p class="text-gray-600 mb-6">"UI设计课程非常棒，老师会逐一点评作业，指出问题并给出改进建议。通过3个月的学习，我的设计水平有了质的飞跃，已经接到了几个设计订单。"</p>
+            <div class="flex items-center">
+              <img src="https://picsum.photos/id/1074/100/100" alt="学员头像" class="w-12 h-12 rounded-full object-cover mr-4">
+              <div>
+                <h4 class="font-medium">赵同学</h4>
+                <p class="text-gray-500 text-sm">UI设计师</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 关于我们 -->
+    <section id="about" class="py-16 bg-white">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-6">关于我们的平台</h2>
+            <p class="text-gray-600 mb-4">EduPlatform是一个专注于提供高质量在线教育的平台，我们汇聚了各行业的专业教师，为学员提供优质的课程内容和学习体验。</p>
+            <p class="text-gray-600 mb-6">我们的使命是让优质教育资源触手可及，帮助每个人实现自我提升和职业发展。无论您是想提升职场技能，还是培养兴趣爱好，都能在这里找到适合的课程。</p>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="flex items-start">
+                <div class="text-primary mr-3 mt-1"><i class="fa fa-check-circle"></i></div>
+                <div>
+                  <h4 class="font-medium mb-1">专业师资</h4>
+                  <p class="text-gray-600 text-sm">行业专家亲自授课</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="text-primary mr-3 mt-1"><i class="fa fa-check-circle"></i></div>
+                <div>
+                  <h4 class="font-medium mb-1">灵活学习</h4>
+                  <p class="text-gray-600 text-sm">随时随地学习</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="text-primary mr-3 mt-1"><i class="fa fa-check-circle"></i></div>
+                <div>
+                  <h4 class="font-medium mb-1">实战导向</h4>
+                  <p class="text-gray-600 text-sm">注重实际应用能力</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="text-primary mr-3 mt-1"><i class="fa fa-check-circle"></i></div>
+                <div>
+                  <h4 class="font-medium mb-1">终身学习</h4>
+                  <p class="text-gray-600 text-sm">课程内容持续更新</p>
+                </div>
+              </div>
+            </div>
+            <button class="px-6 py-3 bg-primary text-white font-medium rounded-md hover:bg-primary/90 transition-colors">
+              了解更多
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <img src="https://picsum.photos/id/20/600/800" alt="关于我们" class="rounded-lg shadow-md transform translate-y-8">
+            <img src="https://picsum.photos/id/26/600/800" alt="关于我们" class="rounded-lg shadow-md">
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 注册提示 -->
+    <section class="py-16 bg-gradient-to-r from-primary to-accent text-white">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">准备好开始您的学习之旅了吗？</h2>
+        <p class="text-white/90 max-w-2xl mx-auto mb-8">立即注册，获取7天免费试学机会，体验优质课程内容</p>
+        <button id="ctaRegisterBtn" class="px-8 py-4 bg-white text-primary font-medium rounded-md hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all text-lg">
+          免费注册 <i class="fa fa-arrow-right ml-2"></i>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white pt-16 pb-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div>
+          <div class="flex items-center mb-6">
+            <i class="fa fa-graduation-cap text-primary text-2xl mr-2"></i>
+            <span class="text-xl font-bold text-white">EduPlatform</span>
+          </div>
+          <p class="text-gray-400 mb-6">提供高质量的在线教育课程，帮助每个人实现自我提升和职业发展。</p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-facebook"></i></a>
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-twitter"></i></a>
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-instagram"></i></a>
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-linkedin"></i></a>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="text-lg font-semibold mb-6">快速链接</h3>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+            <li><a href="#courses" class="text-gray-400 hover:text-white transition-colors">课程</a></li>
+            <li><a href="#teachers" class="text-gray-400 hover:text-white transition-colors">教师</a></li>
+            <li><a href="#about" class="text-gray-400 hover:text-white transition-colors">关于我们</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">常见问题</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="text-lg font-semibold mb-6">课程分类</h3>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">编程开发</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">商业管理</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">设计创意</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">语言学习</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">职业技能</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="text-lg font-semibold mb-6">联系我们</h3>
+          <ul class="space-y-3">
+            <li class="flex items-start">
+              <i class="fa fa-map-marker text-primary mt-1 mr-3"></i>
+              <span class="text-gray-400">北京市海淀区中关村大街1号</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fa fa-phone text-primary mr-3"></i>
+              <span class="text-gray-400">400-123-4567</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fa fa-envelope-o text-primary mr-3"></i>
+              <span class="text-gray-400">contact@eduplatform.com</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-800 pt-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <p class="text-gray-500 text-sm mb-4 md:mb-0">© 2023 EduPlatform. 保留所有权利。</p>
+          <div class="flex space-x-6">
+            <a href="#" class="text-gray-500 hover:text-gray-300 text-sm">隐私政策</a>
+            <a href="#" class="text-gray-500 hover:text-gray-300 text-sm">服务条款</a>
+            <a href="#" class="text-gray-500 hover:text-gray-300 text-sm">Cookie政策</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 登录模态框 -->
+  <div id="loginModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl w-full max-w-md shadow-2xl transform transition-all">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-bold">用户登录</h3>
+          <button id="closeLoginModal" class="text-gray-400 hover:text-gray-600">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <form id="loginForm">
+          <div class="mb-4">
+            <label for="loginID" class="block text-gray-700 mb-2">ID</label>
+            <input type="text" id="loginID" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入用户名">
+          </div>
+          
+          <div class="mb-6">
+            <label for="loginPassword" class="block text-gray-700 mb-2">密码</label>
+            <input type="password" id="loginPassword" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入密码">
+          </div>
+          
+          <div class="flex justify-between mb-6">
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-2">
+              <span class="text-gray-600 text-sm">记住我</span>
+            </label>
+            <a href="#" class="text-primary text-sm hover:underline">忘记密码？</a>
+          </div>
+          
+          <button type="submit" class="w-full py-3 bg-primary text-white font-medium rounded-md hover:bg-primary/90 transition-colors">
+            登录
+          </button>
+        </form>
+        
+        <div class="mt-6 text-center">
+          <span class="text-gray-600">还没有账号？</span>
+          <button id="switchToRegister" class="text-primary ml-1 hover:underline">立即注册</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 注册模态框 -->
+  <div id="registerModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl w-full max-w-md shadow-2xl transform transition-all">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-bold">用户注册</h3>
+          <button id="closeRegisterModal" class="text-gray-400 hover:text-gray-600">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <form id="registerForm">
+          <div class="mb-4">
+            <label for="registerrealUsername" class="block text-gray-700 mb-2">真实姓名</label>
+            <input type="text" id="registerrealUsername" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入真实姓名">
+          </div>
+
+          <div class="mb-4">
+            <label for="registerUsername" class="block text-gray-700 mb-2">用户名</label>
+            <input type="text" id="registerUsername" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入用户名">
+          </div>
+          
+          <div class="mb-4">
+            <label for="registerPhone" class="block text-gray-700 mb-2">手机号</label>
+            <input type="tel" id="registerPhone" pattern="1[3-9]\d{9}"  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入手机号" >
+          </div>
+          
+          <div class="mb-4">
+            <label for="registerPassword" class="block text-gray-700 mb-2">密码</label>
+            <input type="password" id="registerPassword" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入密码">
+          </div>
+          
+          <div class="mb-4">
+            <label for="registerConfirmPassword" class="block text-gray-700 mb-2">确认密码</label>
+            <input type="password" id="registerConfirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请确认密码">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">身份选择</label>
+            <div class="flex items-center space-x-6">
+              <label class="inline-flex items-center">
+                <input type="radio" name="role" value="1" class="form-radio text-primary focus:ring-primary" checked>
+                <span class="ml-2 text-gray-700">学生</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" name="role" value="2" class="form-radio text-primary focus:ring-primary">
+                <span class="ml-2 text-gray-700">教师</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <label class="flex items-start">
+              <input type="checkbox" class="mt-1 mr-2">
+              <span class="text-gray-600 text-sm">我已阅读并同意<a href="#" class="text-primary hover:underline">服务条款</a>和<a href="#" class="text-primary hover:underline">隐私政策</a></span>
+            </label>
+          </div>
+          
+          <button type="submit" class="w-full py-3 bg-primary text-white font-medium rounded-md hover:bg-primary/90 transition-colors">
+            注册
+          </button>
+        </form>
+        
+        <div class="mt-6 text-center">
+          <span class="text-gray-600">已有账号？</span>
+          <button id="switchToLogin" class="text-primary ml-1 hover:underline">立即登录</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+
+    const MenuBtn = document.querySelector('.relative button');
+    const MenuDropdown = document.querySelector('.relative .absolute');
+    MenuBtn.addEventListener('click', () => {
+      MenuDropdown.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      if (!MenuBtn.contains(e.target) && !MenuDropdown.contains(e.target)) {
+        MenuDropdown.classList.add('hidden');
+      }
+    });
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('shadow-md');
+        navbar.classList.remove('shadow-sm');
+      } else {
+        navbar.classList.remove('shadow-md');
+        navbar.classList.add('shadow-sm');
+      }
+    });
+    
+    // 移动端菜单切换
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    mobileMenuBtn.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 搜索框切换
+    const searchBtn = document.getElementById('searchBtn');
+    const searchBox = document.getElementById('searchBox');
+    
+    searchBtn.addEventListener('click', function() {
+      searchBox.classList.toggle('hidden');
+    });
+
+//登录注册
+    window.currentUserRole = (function() {
+      try {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        // 验证角色是否为有效数值（1/2/3）
+        return [1, 2, 3].includes(userInfo.role) ? userInfo.role : null;
+      } catch (e) {
+        return null;
+      }
+    })();
+    const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const mobileRegisterBtn = document.getElementById('mobileRegisterBtn');
+    const ctaRegisterBtn = document.getElementById('ctaRegisterBtn');
+    const loginModal = document.getElementById('loginModal');
+    const registerModal = document.getElementById('registerModal');
+    const closeLoginModal = document.getElementById('closeLoginModal');
+    const closeRegisterModal = document.getElementById('closeRegisterModal');
+    const switchToRegister = document.getElementById('switchToRegister');
+    const switchToLogin = document.getElementById('switchToLogin');
+    //登录页面打开
+    function openLoginModal() {
+      loginModal.classList.remove('hidden');
+      registerModal.classList.add('hidden');
+    }
+    //注册页面打开
+    function openRegisterModal() {
+      registerModal.classList.remove('hidden');
+      loginModal.classList.add('hidden');
+    }
+    //事件绑定
+    loginBtn.addEventListener('click', openLoginModal);
+    mobileLoginBtn.addEventListener('click', openLoginModal);
+    registerBtn.addEventListener('click', openRegisterModal);
+    mobileRegisterBtn.addEventListener('click', openRegisterModal);
+    ctaRegisterBtn.addEventListener('click', openRegisterModal);
+
+    closeLoginModal.addEventListener('click', function() {
+      loginModal.classList.add('hidden');
+    });
+
+    closeRegisterModal.addEventListener('click', function() {
+      registerModal.classList.add('hidden');
+    });
+
+    switchToRegister.addEventListener('click', openRegisterModal);
+    switchToLogin.addEventListener('click', openLoginModal);
+
+    // 点击模态框外部关闭
+    loginModal.addEventListener('click', function(e) {
+      if (e.target === loginModal) {
+        loginModal.classList.add('hidden');
+      }
+    });
+
+    registerModal.addEventListener('click', function(e) {
+      if (e.target === registerModal) {
+        registerModal.classList.add('hidden');
+      }
+    });
+
+    // 新增：按ESC键关闭模态框（增强用户体验）
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !registerModal.classList.contains('hidden')) {
+        closeRegisterModalHandler();
+      }
+    });
+    // 表单提交
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    // 先确认元素是否存在
+    console.log(document.getElementById('mobileLoginBtn'));
+    console.log(document.getElementById('mobileRegisterBtn'));
+    //  更新UI（切换登录/用户菜单状态）
+    // 登录成功后执行（原代码的“更新UI”部分）
+    function hideAuthButtons() {
+      document.getElementById("loginBtn").style.display = "none";
+      document.getElementById('registerBtn').style.display = "none";
+      document.getElementById('mobileLoginBtn').style.display = "none";
+      document.getElementById('mobileRegisterBtn').style.display = "none";
+
+    }
+    // 退出登录后执行（原代码的“更新UI”部分）
+    function showAuthButtons() {
+      // 显示登录/注册按钮（恢复默认display值）
+      document.getElementById("loginBtn").style.display = "inline-block";
+      document.getElementById('registerBtn').style.display = "inline-block";
+      document.getElementById('mobileLoginBtn').style.display = "inline-block";
+      document.getElementById('mobileRegisterBtn').style.display = "inline-block";
+      // 隐藏用户菜单
+
+    }
+    //登录表单处理
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('loginID').value;
+      const password = document.getElementById('loginPassword').value;
+      // 前端简单验证
+      if (!id || !password) {
+        alert('请输入ID和密码');
+        return;
+      }
+      if (isNaN(Number(id))) {
+        alert('ID必须是数字');
+        return;
+      }
+      try {
+        // 发送登录请求（对接后端接口）
+        const response = await fetch('/api/user/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json', // 必须添加JSON请求头
+          },
+          body: JSON.stringify({ id: Number(id), password })
+        });
+
+        // 解析后端返回的JSON数据
+        const result = await response.json();
+const role = result.data.role;
+handleLogin( role);
+
+        // 处理响应结果
+        if (response.ok && result.code==200) {
+          // 1. 保存登录状态（token和用户信息）
+          const cleanToken = result.data.token.trim();
+          localStorage.setItem('token', cleanToken); // 存储JWT令牌
+          localStorage.setItem('userInfo', JSON.stringify(result.data)); // 存储用户信息
+          // 检查令牌是否有效
+          if (!cleanToken) {
+            alert('登录失败：未能获取有效令牌');
+            return;
+          }
+          // 2. 关闭登录模态框
+          loginModal.classList.add('hidden');
+
+          if ( window.currentUserRole==1 ){
+            hideAuthButtons();
+            document.getElementById('studentUserMenu').classList.remove('hidden');
+            const userMenu = document.getElementById('studentUserMenu');
+            // 4. 更新用户头像和名称（从接口返回数据中获取）
+            if (userMenu) {
+              // 1. 找到页面中显示昵称的元素（必须用CSS选择器，比如span/特定class）
+              // 👉 重点：把'.nickname'换成你页面中昵称元素的实际选择器（比如'span'/'#userName'）
+              const userNameElement = userMenu.querySelector('span');
+              // 2. 仅使用后端返回的昵称，无容错默认值（确保完全用后端数据）
+              if (userNameElement && result.data.nickname) {
+                userNameElement.textContent = result.data.nickname; // 直接赋值后端昵称
+              }
+
+              // 3. 头像逻辑（同步修正，仅用后端头像或页面默认img元素）
+              const userAvatarElement = userMenu.querySelector('img');
+              if (userAvatarElement) {
+                // 有后端头像就用，没有则保留img元素原有src（不替换成默认图）
+                if (result.data.avatar) {
+                  userAvatarElement.src = result.data.avatar;
+                }
+              }
+            }}
+         else if(window.currentUserRole==2){
+            hideAuthButtons();
+            document.getElementById('teacherUserMenu').classList.remove('hidden');
+            const userMenu = document.getElementById('teacherUserMenu');
+            // 4. 更新用户头像和名称（从接口返回数据中获取）
+            if (userMenu) {
+              // 1. 找到页面中显示昵称的元素（必须用CSS选择器，比如span/特定class）
+              // 👉 重点：把'.nickname'换成你页面中昵称元素的实际选择器（比如'span'/'#userName'）
+              const userNameElement = userMenu.querySelector('span');
+              // 2. 仅使用后端返回的昵称，无容错默认值（确保完全用后端数据）
+              if (userNameElement && result.data.nickname) {
+                userNameElement.textContent = result.data.nickname; // 直接赋值后端昵称
+              }
+
+              // 3. 头像逻辑（同步修正，仅用后端头像或页面默认img元素）
+              const userAvatarElement = userMenu.querySelector('img');
+              if (userAvatarElement) {
+                // 有后端头像就用，没有则保留img元素原有src（不替换成默认图）
+                if (result.data.avatar) {
+                  userAvatarElement.src = result.data.avatar;
+                }
+              }
+            }}
+         else if (window.currentUserRole==3){
+            hideAuthButtons();
+            document.getElementById('adminUserMenu').classList.remove('hidden');
+            const userMenu = document.getElementById('adminUserMenu');
+            // 4. 更新用户头像和名称（从接口返回数据中获取）
+            if (userMenu) {
+              // 1. 找到页面中显示昵称的元素（必须用CSS选择器，比如span/特定class）
+              // 👉 重点：把'.nickname'换成你页面中昵称元素的实际选择器（比如'span'/'#userName'）
+              const userNameElement = userMenu.querySelector('span');
+              // 2. 仅使用后端返回的昵称，无容错默认值（确保完全用后端数据）
+              if (userNameElement && result.data.nickname) {
+                userNameElement.textContent = result.data.nickname; // 直接赋值后端昵称
+              }
+
+              // 3. 头像逻辑（同步修正，仅用后端头像或页面默认img元素）
+              const userAvatarElement = userMenu.querySelector('img');
+              if (userAvatarElement) {
+                // 有后端头像就用，没有则保留img元素原有src（不替换成默认图）
+                if (result.data.avatar) {
+                  userAvatarElement.src = result.data.avatar;
+                }
+              }
+            }}
+          alert('登录成功！');
+        } else {
+          // 显示后端返回的错误信息（如用户名密码错误）
+          alert(result.msg || '登录失败，请重试');
+        }
+      } catch (error) {
+        console.error('登录请求失败:', error);
+        alert('密码不一致，登录失败');
+      }
+    });
+
+    // 退出登录
+    // 1. DOM加载完成后立即绑定（此时角色已从localStorage恢复）
+    window.addEventListener('DOMContentLoaded', function() {
+      checkLoginStatus(); // 先检查登录状态（恢复UI）
+      bindLogoutButtons(); // 再绑定退出按钮（关键：顺序调整）
+    });
+
+    // 新增：统一绑定退出按钮的函数
+    function bindLogoutButtons() {
+      // 先移除原有事件（避免重复绑定）
+      const teacherBtn = document.getElementById('teacherLogoutBtn');
+      const studentBtn = document.getElementById('studentLogoutBtn');
+      const adminBtn = document.getElementById('adminLogoutBtn');
+
+      // 移除所有退出按钮的原有事件（兼容多次调用）
+      if (teacherBtn) teacherBtn.replaceWith(teacherBtn.cloneNode(true));
+      if (studentBtn) studentBtn.replaceWith(studentBtn.cloneNode(true));
+      if (adminBtn) adminBtn.replaceWith(adminBtn.cloneNode(true));
+
+      // 重新获取按钮（克隆后原引用失效）
+      const newTeacherBtn = document.getElementById('teacherLogoutBtn');
+      const newStudentBtn = document.getElementById('studentLogoutBtn');
+      const newAdminBtn = document.getElementById('adminLogoutBtn');
+
+      // 绑定事件（不再依赖当前角色，而是点击时动态判断）
+      if (newTeacherBtn) {
+        newTeacherBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout(); // 仅调用logout，菜单隐藏交给logout处理
+        });
+      }
+      if (newStudentBtn) {
+        newStudentBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      }
+      if (newAdminBtn) {
+        newAdminBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      }
+    }
+    // 2. 登录成功后重新绑定（角色变化后更新事件）
+    function handleLogin(role) {
+      window.currentUserRole = role;
+      bindLogoutButtons(); // 新增：登录后重新绑定
+    }
+    // 检查登录状态并更新UI
+    function checkLoginStatus() {
+      const token = localStorage.getItem('token');
+      // 先验证角色有效性
+      const validRoles = [1, 2, 3];
+      const currentRole = validRoles.includes(window.currentUserRole) ? window.currentUserRole : null;
+      if (currentRole==1){
+        if (token) {
+        // 有token，说明已登录 → 隐藏登录/注册按钮
+        hideAuthButtons();
+        try {
+          const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+          const userMenu = document.getElementById('studentUserMenu');
+          const userAvatar = userMenu?.querySelector('img');
+          const userName = userMenu?.querySelector('span');
+
+          if (userAvatar && userName) {
+            userAvatar.src = userInfo.avatar || 'https://picsum.photos/id/64/40/40';
+            userName.textContent = userInfo.nickname || userInfo.username || '用户';
+          }
+          // 显示用户菜单
+          userMenu?.classList.remove('hidden');
+        } catch (err) {
+          console.error('解析用户信息失败:', err);
+          // 解析失败时视为未登录
+          handleLogoutFailure();
+        }
+      } else {
+        // 无token，说明未登录 → 显示登录/注册按钮
+        showAuthButtons();
+        document.getElementById('studentUserMenu').classList.add('hidden');
+      }}
+      else if(currentRole==2){
+        if (token) {
+        // 有token，说明已登录 → 隐藏登录/注册按钮
+        hideAuthButtons();
+        try {
+          const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+          const userMenu = document.getElementById('teacherUserMenu');
+          const userAvatar = userMenu?.querySelector('img');
+          const userName = userMenu?.querySelector('span');
+
+          if (userAvatar && userName) {
+            userAvatar.src = userInfo.avatar || 'https://picsum.photos/id/64/40/40';
+            userName.textContent = userInfo.nickname || userInfo.username || '用户';}
+          userMenu?.classList.remove('hidden');
+        }catch (err) {
+          console.error('解析用户信息失败:', err);
+          // 解析失败时视为未登录
+          handleLogoutFailure();
+        }
+      }else {
+          // 无token，说明未登录 → 显示登录/注册按钮
+          showAuthButtons();
+          document.getElementById('teacherUserMenu').classList.add('hidden');}}
+
+      else if (currentRole==3){
+        if (token) {
+        // 有token，说明已登录 → 隐藏登录/注册按钮
+        hideAuthButtons();
+        try {
+          const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+          const userMenu = document.getElementById('adminUserMenu');
+          const userAvatar = userMenu?.querySelector('img');
+          const userName = userMenu?.querySelector('span');
+
+          if (userAvatar && userName) {
+            userAvatar.src = userInfo.avatar || 'https://picsum.photos/id/64/40/40';
+            userName.textContent = userInfo.nickname || userInfo.username || '用户';}
+          userMenu?.classList.remove('hidden');
+        }catch (err) {
+          console.error('解析用户信息失败:', err);
+          // 解析失败时视为未登录
+          handleLogoutFailure();
+        }
+        }else {
+          // 无token，说明未登录 → 显示登录/注册按钮
+          showAuthButtons();
+          document.getElementById('adminUserMenu').classList.add('hidden');}
+    }
+      // 新增：非有效角色时，强制显示登录按钮+隐藏所有角色菜单
+      else {
+        showAuthButtons();
+        document.getElementById('teacherUserMenu')?.classList.add('hidden');
+        document.getElementById('studentUserMenu')?.classList.add('hidden');
+        document.getElementById('adminUserMenu')?.classList.add('hidden');
+      }
+    }
+    // 退出登录功能
+    function logout() {
+      // 1. 清除本地存储中的登录信息
+      localStorage.removeItem('token');
+      localStorage.removeItem('userInfo');
+      const oldRole = window.currentUserRole; // 记录退出前的角色
+      window.currentUserRole = null;
+
+      // 2. 隐藏所有角色菜单（兜底，避免漏藏）
+      document.getElementById('teacherUserMenu')?.classList.add('hidden');
+      document.getElementById('studentUserMenu')?.classList.add('hidden');
+      document.getElementById('adminUserMenu')?.classList.add('hidden');
+
+      showAuthButtons();
+      // 4. 重新绑定按钮（角色重置后更新事件）
+      bindLogoutButtons();
+    }
+
+    // 处理登录信息解析失败的情况
+    function handleLogoutFailure() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userInfo');
+      showAuthButtons();
+    }
+
+
+    //注册表单处理
+    registerForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const nickname= document.getElementById('registerUsername').value;
+      const phone = document.getElementById('registerPhone').value; // 补充手机号字段
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('registerConfirmPassword').value;
+      const username= document.getElementById('registerrealUsername').value;
+      const role = document.querySelector('input[name="role"]:checked').value;
+      // 前端简单验证
+      if (!username || !phone || !password || !confirmPassword || !nickname) {
+        alert('请填写完整注册信息');
+        return;
+      }
+      if (!/^1[3-9]\d{9}$/.test(phone)) {
+        alert('请输入有效的手机号');
+        return;
+      }
+      if (password.length < 6 || password.length > 20) {
+        alert('密码长度必须在6-20位之间');
+        return;
+      }
+      if (password != confirmPassword) {
+        alert('两次输入的密码不一致');
+        return;
+      }
+try {
+  // 发送注册请求
+  const response = await fetch('/api/user/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json', // 必须添加JSON请求头
+    },
+    body: JSON.stringify({
+      username,
+      phone,
+      password,
+      nickname,
+      role
+    })
+  });
+  const result = await response.json();
+  // 处理响应结果
+  if (response.ok && result.code==200) {
+    registerModal.classList.add('hidden');
+    const id=result.data.id;
+    alert(`注册成功，您的ID为${id},请登录！`);
+
+    openLoginModal();
+    // 清空表单
+    registerForm.reset();
+  } else {
+    // 显示后端返回的错误信息
+    alert(result.message || '注册失败，请稍后重试');
+  }
+} catch (error) {
+  console.error('注册请求失败:', error);
+  alert('网络错误，注册失败');
+}
+    });
+
+
+
+    // 图表初始化
+    window.addEventListener('load', function() {
+      // 课程分类分布图表
+      const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+      new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['编程开发', '商业管理', '设计创意', '语言学习', '职业技能', '学术教育'],
+          datasets: [{
+            data: [30, 15, 20, 18, 12, 5],
+            backgroundColor: [
+              '#165DFF',
+              '#36CFC9',
+              '#722ED1',
+              '#52C41A',
+              '#FAAD14',
+              '#FF4D4F'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right'
+            }
+          }
+        }
+      });
+      
+      // 学习时长统计图表
+      const timeCtx = document.getElementById('learningTimeChart').getContext('2d');
+      new Chart(timeCtx, {
+        type: 'bar',
+        data: {
+          labels: ['一月', '二月', '三月', '四月', '五月', '六月'],
+          datasets: [{
+            label: '平均学习时长（小时）',
+            data: [45, 59, 80, 81, 56, 85],
+            backgroundColor: '#165DFF',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+          
+          // 关闭移动端菜单
+          mobileMenu.classList.add('hidden');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

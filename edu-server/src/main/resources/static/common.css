@@ -1,0 +1,41 @@
+/* 复用主页面的tailwind自定义工具类 + 通用弹窗样式 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .content-auto {
+        content-visibility: auto;
+    }
+    .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card-hover {
+        transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+        transform: translateY(-5px);
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    /* 弹窗通用样式（和主页面登录弹窗风格统一） */
+    .modal-backdrop {
+        @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+    }
+    .modal-container {
+        @apply bg-white rounded-lg w-full max-w-md p-6 shadow-xl;
+    }
+    .modal-lg-container {
+        @apply bg-white rounded-lg w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto shadow-xl;
+    }
+    .form-input {
+        @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary;
+    }
+    .btn-primary {
+        @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors;
+    }
+    .btn-default {
+        @apply px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors;
+    }
+}

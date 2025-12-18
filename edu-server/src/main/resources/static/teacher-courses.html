@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的授课课程 - EduPlatform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="common.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#722ED1',
+                        success: '#52C41A',
+                        warning: '#FAAD14',
+                        danger: '#FF4D4F',
+                        dark: '#1D2129',
+                        light: '#F2F3F5'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+</head>
+<body class="font-inter bg-gray-50 text-dark">
+<!-- 导航栏 -->
+<header id="navbar" class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+                <a href="index.html" class="flex items-center">
+                    <i class="fa fa-graduation-cap text-primary text-2xl mr-2"></i>
+                    <span class="text-xl font-bold text-primary">EduPlatform</span>
+                </a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="text-gray-600 hover:text-primary font-medium transition-colors">返回首页</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="pt-16 min-h-screen">
+    <section class="py-12 bg-light">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-2">我的授课管理</h1>
+                <p class="text-gray-600 max-w-2xl mx-auto">管理您创建的所有课程</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
+                <!-- 1. 筛选按钮区域：放在课程列表上方，优先展示 -->
+                <div class="filter-buttons mb-6 flex gap-3">
+                    <button onclick="filterCourses('all')" class="active px-4 py-2 bg-blue-500 text-white rounded">全部课程</button>
+                    <button onclick="filterCourses('ongoing')" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">进行中</button>
+                    <button onclick="filterCourses('ended')" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">已结束</button>
+                </div>
+            </div>
+
+            <button id="btn-create-course" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors flex items-center">
+                <i class="fa fa-plus mr-2"></i> 创建新课程
+            </button>
+
+            <!-- 发布/编辑课程模态框 -->
+            <div id="publishCourseModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl transform transition-all">
+                    <div class="p-6">
+                        <!-- 模态框标题（区分发布/编辑） -->
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 id="modalTitle" class="text-xl font-bold">发布新课程</h3>
+                            <button id="closePublishModal" class="text-gray-400 hover:text-gray-600">
+                                <i class="fa fa-times text-xl"></i>
+                            </button>
+                        </div>
+
+                        <!-- 课程发布表单 -->
+                        <form id="publishCourseForm">
+                            <!-- 隐藏字段：课程ID（编辑时用） -->
+                            <input type="hidden" id="courseId">
+
+                            <!-- 课程标题 -->
+                            <div class="mb-4">
+                                <label for="courseTitle" class="block text-gray-700 mb-2">课程标题 <span class="text-red-500">*</span></label>
+                                <input type="text" id="courseTitle" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入课程标题（最多100字）" required>
+                            </div>
+
+                            <!-- 封面URL -->
+                            <div class="mb-4">
+                                <label for="courseCover" class="block text-gray-700 mb-2">封面URL</label>
+                                <input type="url" id="courseCover" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入课程封面图片URL（选填）">
+                                <p class="mt-1 text-xs text-gray-500">示例：https://edu-platform.oss-cn-beijing.aliyuncs.com/course/cover/ui.jpg</p>
+                            </div>
+
+                            <!-- 分类ID & 教师ID（一行两列布局） -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label for="categoryId" class="block text-gray-700 mb-2">分类ID <span class="text-red-500">*</span></label>
+                                    <input type="number" id="categoryId" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入分类ID" required>
+                                </div>
+                            </div>
+
+                            <!-- 课程价格 -->
+                            <div class="mb-4">
+                                <label for="coursePrice" class="block text-gray-700 mb-2">课程价格（元）</label>
+                                <input type="number" id="coursePrice" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入课程价格（保留2位小数，默认0元）">
+                            </div>
+
+                            <!-- 课程描述 -->
+                            <div class="mb-4">
+                                <label for="courseDescription" class="block text-gray-700 mb-2">课程描述</label>
+                                <textarea id="courseDescription" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="请输入课程详细描述（选填）"></textarea>
+                            </div>
+
+                            <!-- 课程时间（一行两列） -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label for="startTime" class="block text-gray-700 mb-2">开始时间</label>
+                                    <input type="datetime-local" id="startTime" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                                </div>
+                                <div>
+                                    <label for="endTime" class="block text-gray-700 mb-2">结束时间</label>
+                                    <input type="datetime-local" id="endTime" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                                </div>
+                            </div>
+
+                            <!-- 发布状态选择 -->
+                            <div class="mb-6">
+                                <label class="block text-gray-700 mb-2">发布状态 <span class="text-red-500">*</span></label>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center">
+                                        <input type="radio" name="courseStatus" value="0" class="mr-2" checked>
+                                        <span class="text-gray-600">草稿</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="courseStatus" value="1" class="mr-2">
+                                        <span class="text-gray-600">立即发布</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- 提交按钮 -->
+                            <div class="flex space-x-3">
+                                <button type="button" id="cancelPublish" class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200 transition-colors">
+                                    取消
+                                </button>
+                                <button type="submit" class="flex-1 py-3 bg-primary text-white font-medium rounded-md hover:bg-primary/90 transition-colors">
+                                    <span id="submitBtnText">发布课程</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 引入Font Awesome（图标依赖） -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+            <!-- 课程列表容器 -->
+            <div id="courseList" class="space-y-6">
+                <!-- 加载状态 -->
+                <div class="flex justify-center py-16">
+                    <div class="text-center">
+                        <i class="fa fa-spinner fa-spin text-primary text-3xl mb-4"></i>
+                        <p class="text-gray-600">加载课程数据中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分页容器 -->
+            <div id="paginationContainer" class="mt-10 flex justify-center hidden">
+                <nav class="inline-flex rounded-md shadow" id="pagination">
+                    <!-- 分页内容将由JS动态生成 -->
+                </nav>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-dark text-white py-8 mt-16">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <p class="text-gray-400">© 2023 EduPlatform. 保留所有权利。</p>
+    </div>
+</footer>
+
+<script>
+
+
+    // 筛选函数
+    function filterCourses(type) {
+        let filteredCourses;
+        const now = new Date(); // 当前时间
+
+        switch (type) {
+            case 'all':
+                // 全部课程：显示所有
+                filteredCourses = allCourses;
+                break;
+            case 'ongoing':
+                // 进行中：当前时间在课程起止时间之间
+                filteredCourses = allCourses.filter(allCourses => {
+                    const start = new Date(allCourses.startTime);
+                    const end = new Date(allCourses.endTime);
+                    return start <= now && now <= end;
+                });
+                break;
+            case 'ended':
+                // 已结束：当前时间晚于课程结束时间
+                filteredCourses = allCourses.filter(allCourses => {
+                    const end = new Date(allCourses.endTime);
+                    return now > end;
+                });
+                break;
+            default:
+                filteredCourses = allCourses;
+        }
+
+        // 筛选后重新渲染课程卡片
+        renderCourses(filteredCourses);
+    }
+
+let Courses
+
+
+    // 等待页面DOM加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取创建课程按钮
+        const createCourseBtn = document.getElementById('btn-create-course');
+
+        // 绑定点击事件：打开发布课程模态框（新增模式）
+        if (createCourseBtn) {
+            createCourseBtn.addEventListener('click', openPublishModal);
+        }
+
+        // 以下是发布模态框的核心函数（复用之前的逻辑）
+
+        // 绑定模态框的关闭/取消按钮（如果还没绑定）
+        const closeModalBtn = document.getElementById('closePublishModal');
+        const cancelBtn = document.getElementById('cancelPublish');
+        if (closeModalBtn) closeModalBtn.addEventListener('click', closePublishModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closePublishModal);
+
+        // 3. 表单提交逻辑（复用之前的发布/编辑逻辑）
+        const publishForm = document.getElementById('publishCourseForm');
+        if (publishForm) {
+            publishForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                // 这里是表单提交的核心逻辑（复用之前写的代码）
+                // 收集表单数据、调用接口、提示结果等
+            });
+        }
+    });
+    // 1. 全局变量：区分是新增还是编辑
+    let isEditMode = false;
+
+    // 2. 打开发布课程模态框（新增）
+    function openPublishModal() {
+        // 重置表单状态
+        isEditMode = false;
+        document.getElementById('modalTitle').textContent = '发布新课程';
+        document.getElementById('submitBtnText').textContent = '发布课程';
+        document.getElementById('publishCourseForm').reset();
+        document.getElementById('courseId').value = '';
+
+        // 显示模态框
+        document.getElementById('publishCourseModal').classList.remove('hidden');
+    }
+
+    // 3. 打开编辑课程模态框（传入课程数据）
+    function openEditModal(course) {
+        // 设置编辑模式
+        isEditMode = true;
+        // 显示模态框
+        document.getElementById('publishCourseModal').classList.remove('hidden');
+
+        document.getElementById('modalTitle').textContent = '编辑课程';
+        document.getElementById('submitBtnText').textContent = '保存修改';
+
+        // 填充课程数据到表单
+        document.getElementById('courseId').value = course.id || '';
+        document.getElementById('courseTitle').value = course.title || '';
+        document.getElementById('courseCover').value = course.cover || '';
+        document.getElementById('categoryId').value = course.category_id || course.categoryId || '';
+        document.getElementById('coursePrice').value = course.price || 0;
+        document.getElementById('courseDescription').value = course.description || '';
+
+
+
+        // 设置发布状态
+        const status = course.status || 0;
+        document.querySelector(`input[name="courseStatus"][value="${status}"]`).checked = true;
+
+
+    }
+
+    // 4. 关闭模态框
+    function closePublishModal() {
+        document.getElementById('publishCourseModal').classList.add('hidden');
+    }
+
+
+
+    // 6. 表单提交逻辑
+    document.getElementById('publishCourseForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+// 处理时间格式：将 datetime-local 的值转换为后端格式
+        const formatToBackendTime = (localTime) => {
+            if (!localTime) return null;
+            // 转换 '2025-12-01T19:30' 为 '2025-12-01 19:30:00'
+            return localTime.replace('T', ' ') + ':00';
+        };
+        // 收集表单数据
+        const courseData = {
+            id: document.getElementById('courseId').value || null,
+            title: document.getElementById('courseTitle').value.trim(),
+            cover: document.getElementById('courseCover').value.trim() || null,
+            categoryId: parseInt(document.getElementById('categoryId').value),
+            price: document.getElementById('coursePrice').value ? parseFloat(document.getElementById('coursePrice').value) : 0.00,
+            description: document.getElementById('courseDescription').value.trim() || null,
+            status: parseInt(document.querySelector('input[name="courseStatus"]:checked').value),
+            startTime: formatToBackendTime(document.getElementById('startTime').value),
+            endTime: formatToBackendTime(document.getElementById('endTime').value)
+        };
+
+        const id =courseData.id;
+        try {
+            // 区分新增/编辑接口
+            const url = isEditMode
+                ? `/api/course/${id}`
+                : '/api/course/add';
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            // 发送请求
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(courseData)
+            });
+
+            const result = await response.json();
+            if (response.ok && result.code === 200) {
+                alert(isEditMode ? '课程编辑成功' : '课程发布成功');
+                closePublishModal();
+                fetchTeacherCourses(); // 重新加载课程列表
+            } else {
+                alert((isEditMode ? '编辑' : '发布') + '失败: ' + (result.msg || '未知错误'));
+            }
+        } catch (error) {
+            console.error('课程提交错误:', error);
+            alert('网络错误，操作失败');
+        }
+    });
+
+    // 7. 绑定关闭/取消按钮事件
+    document.getElementById('closePublishModal').addEventListener('click', closePublishModal);
+    document.getElementById('cancelPublish').addEventListener('click', closePublishModal);
+
+    // 8. 绑定“创建新课程”按钮（关联之前的按钮）
+    document.getElementById('btn-create-course')?.addEventListener('click', openPublishModal);
+
+    // 页面滚动时导航栏效果
+    window.addEventListener('scroll', function() {
+        const navbar = document.getElementById('navbar');
+        if (window.scrollY > 10) {
+            navbar.classList.add('shadow');
+            navbar.classList.remove('bg-white/90');
+            navbar.classList.add('bg-white');
+        } else {
+            navbar.classList.remove('shadow');
+            navbar.classList.add('bg-white/90');
+            navbar.classList.remove('bg-white');
+        }
+    });
+    // 获取教师课程列表
+    async function fetchTeacherCourses() {
+        try {
+            const response = await fetch('api/teacher/course', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.code === 200) {
+                // 成功获取课程列表，处理数据
+                const courses = result.data;
+                allCourses = courses;
+                filterCourses();
+            } else {
+                console.error('获取课程失败:', result.msg);
+                alert('获取课程失败: ' + (result.msg || '未知错误'));
+            }
+        } catch (error) {
+            console.error('获取课程时发生网络错误:', error);
+            alert('网络错误，无法获取课程列表');
+        }
+    }
+
+    // 渲染课程列表到页面
+    function renderCourses(courses) {
+        const courseContainer = document.getElementById('courseList');
+        if (!courseContainer) {
+            console.error('未找到课程列表容器');
+            return;
+        }
+
+        // 清空容器
+        courseContainer.innerHTML = '';
+
+        if (courses.length === 0) {
+            courseContainer.innerHTML = `
+            <div class="text-center py-10">
+                <p class="text-gray-500">暂无课程数据，请先创建课程</p>
+            </div>
+        `;
+            return;
+        }
+
+        // 遍历课程数据，生成HTML
+        courses.forEach(course => {
+            // 格式化日期显示
+            const formatDate = (dateStr) => {
+                if (!dateStr) return '无';
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                });
+            };
+
+            const courseCard = document.createElement('div');
+            courseCard.className = 'bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover border border-gray-100';
+            courseCard.innerHTML = `
+        <div class="relative">
+            <img src="${course.cover || 'default-course.jpg'}" alt="${course.title}" class="w-full h-48 object-cover rounded-t-lg">
+            ${course.status === 1 ?
+                '<div class="absolute top-3 right-3 bg-green-500 text-white text-xs px-2 py-1 rounded">已发布</div>' :
+                '<div class="absolute top-3 right-3 bg-gray-500 text-white text-xs px-2 py-1 rounded">草稿</div>'
+            }
+        </div>
+        <div class="p-5">
+            <div class="flex items-center text-sm text-gray-500 mb-2 flex-wrap">
+                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded mr-2 mb-1">课程ID: ${course.id}</span>
+                <span class="bg-gray-50 text-gray-600 px-2 py-0.5 rounded mb-1">分类ID: ${course.categoryId || '未分类'}</span>
+                <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded ml-2 mb-1">讲师ID: ${course.teacherId || '未指定'}</span>
+            </div>
+            <h3 class="font-semibold text-lg mb-2 line-clamp-1">${course.title || '无标题'}</h3>
+            <p class="text-gray-600 text-sm mb-4 line-clamp-2">${course.description ? (typeof course.description === 'string' ? course.description : '无课程描述') : '无课程描述'}</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600 mb-4">
+                <div>
+                    <span class="text-gray-500">开始时间:</span> ${formatDate(course.startTime)}
+                </div>
+                <div>
+                    <span class="text-gray-500">结束时间:</span> ${formatDate(course.endTime)}
+                </div>
+                <div>
+                    <span class="text-gray-500">创建时间:</span> ${formatDate(course.createTime)}
+                </div>
+                <div>
+                    <span class="text-gray-500">更新时间:</span> ${formatDate(course.updateTime)}
+                </div>
+            </div>
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="font-bold text-blue-600 text-lg">¥${course.price ? parseFloat(course.price).toFixed(2) : '0.00'}</div>
+                <div class="flex space-x-2">
+                    <button onclick="editCourse(${course.id})" class="px-3 py-1 bg-blue-50 text-blue-600 rounded text-sm hover:bg-blue-100 transition">编辑</button>
+                    <button onclick="deleteCourse(${course.id})" class="px-3 py-1 bg-red-50 text-red-600 rounded text-sm hover:bg-red-100 transition">删除</button>
+                    ${course.status === 0 ?
+                `<button onclick="publishCourse(${course.id})" class="px-3 py-1 bg-green-50 text-green-600 rounded text-sm hover:bg-green-100 transition">发布</button>` :
+                `<button onclick="unpublishCourse(${course.id})" class="px-3 py-1 bg-orange-50 text-orange-600 rounded text-sm hover:bg-orange-100 transition">下架</button>`
+            }
+                </div>
+            </div>
+        </div>
+    `;
+            courseContainer.appendChild(courseCard);
+        });
+    }
+
+    // 页面加载时获取课程列表
+    window.addEventListener('DOMContentLoaded', function() {
+        fetchTeacherCourses();
+    });
+// 获取当前课程信息
+    async function fetchCourses1(id) {
+        try {
+            const response = await fetch(`api/course/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.code === 200) {
+                // 成功获取课程列表，处理数据
+                return  submitData1( result.data.course);
+            } else {
+                console.error('获取课程失败:', result.msg);
+                alert('获取课程失败: ' + (result.msg || '未知错误'));
+            }
+        } catch (error) {
+            console.error('获取课程时发生网络错误:', error);
+            alert('网络错误，无法获取课程列表');
+        }
+    }
+
+    // 获取当前课程信息
+    async function fetchCourses2(id) {
+        try {
+            const response = await fetch(`api/course/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.code === 200) {
+                // 成功获取课程列表，处理数据
+
+               return  submitData2( result.data.course);
+            } else {
+                console.error('获取课程失败:', result.msg);
+                alert('获取课程失败: ' + (result.msg || '未知错误'));
+            }
+        } catch (error) {
+            console.error('获取课程时发生网络错误:', error);
+            alert('网络错误，无法获取课程列表');
+        }
+    }
+    // 编辑课程
+    async function editCourse(id) {
+        console.log("编辑按钮触发，课程ID：", id); // 新增日志
+        // 首先需要获取课程详细信息，然后填充到模态框中
+        try {
+            const response = await fetch(`/api/course/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            const result = await response.json();
+                    if (response.ok && result.code === 200) {
+                        // 成功获取课程列表，处理数据
+                        const pageresult = result.data;
+                        const courses = pageresult.course || [];
+                        Courses = courses;
+                        openEditModal(Courses);
+                    } else {
+                        alert('获取课程信息失败: ' + (result.msg || '未知错误'));
+                    }
+
+        }  catch(error) {
+            console.error('获取课程信息错误:', error);
+            alert('网络错误，无法获取课程信息');
+        };
+
+    }
+    function submitData1(course) {
+        // 状态改为1（发布）
+        const submitData1 = {
+            status: 1,
+            // 课程基础信息（从course对象中取）
+            cover: course.cover || '', // 封面
+            title: course.title || '', // 标题
+            price: course.price || 0, // 价格（确保是数字）
+            description: typeof course.description === 'string' ? course.description : '', // 描述
+            startTime: course.startTime || '', // 开始时间（保留原格式，后端已配置兼容T/Z）
+            endTime: course.endTime || '', // 结束时间}
+        };
+        return submitData1;
+    }
+    function submitData2(course){
+        // 状态改为1（发布）
+        const submitData2 = {
+            status: 0,
+            // 课程基础信息（从course对象中取）
+            cover: course.cover || '', // 封面
+            title: course.title || '', // 标题
+            price: course.price || 0, // 价格（确保是数字）
+            description: typeof course.description === 'string' ? course.description : '', // 描述
+            startTime: course.startTime || '', // 开始时间（保留原格式，后端已配置兼容T/Z）
+            endTime: course.endTime || '', // 结束时间
+        }
+        return submitData2;
+    };
+
+    // 删除课程
+    async function deleteCourse(id) {
+        if (confirm('确定要删除这门课程吗？删除后不可恢复！')) {
+            try {
+                const response = await fetch(`/api/course/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                if (response.ok && result.code === 200) {
+                    alert('课程删除成功');
+                    fetchTeacherCourses(); // 重新加载课程列表
+                } else {
+                    alert('删除失败: ' + (result.msg || '未知错误'));
+                }
+            } catch (error) {
+                console.error('删除课程错误:', error);
+                alert('网络错误，删除失败');
+            }
+        }
+    }
+
+    // 发布课程
+    async function publishCourse(id) {
+        try {
+            // 先等待获取课程数据
+            const course = await fetchCourses1(id);
+            // 生成提交数据
+            const submitData = submitData1(course);
+            const response = await fetch(`/api/course/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                    'Content-Type': 'application/json'
+                },
+                body:  JSON.stringify(submitData)
+            });
+
+            const result = await response.json();
+            if (response.ok && result.code === 200) {
+                alert('课程发布成功');
+                fetchTeacherCourses(); // 重新加载课程列表
+            } else {
+                alert('发布失败: ' + (result.msg || '未知错误'));
+            }
+        } catch (error) {
+            console.error('发布课程错误:', error);
+            alert('网络错误，发布失败');
+        }
+    }
+
+    // 下架课程
+    async function unpublishCourse(id) {
+        try {
+            // 先等待获取课程数据
+            const course = await fetchCourses2(id);
+            // 生成提交数据
+            const submitData = submitData2(course);
+            const response = await fetch(`/api/course/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                    'Content-Type': 'application/json'
+                },
+                body:  JSON.stringify(submitData)
+            });
+
+            const result = await response.json();
+            if (response.ok && result.code === 200) {
+                alert('课程已下架');
+                fetchTeacherCourses(); // 重新加载课程列表
+            } else {
+                alert('下架失败: ' + (result.msg || '未知错误'));
+            }
+        } catch (error) {
+            console.error('下架课程错误:', error);
+            alert('网络错误，下架失败');
+        }
+    }
+
+
+
+
+    // 模拟获取教师课程数据
+    window.addEventListener('DOMContentLoaded', function() {
+        // 实际项目中这里会通过API获取数据并渲染
+        console.log('加载教师课程数据...');
+    });
+</script>
+</body>
+</html>

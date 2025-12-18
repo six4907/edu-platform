@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全部课程</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#722ED1',
+            success: '#52C41A',
+            warning: '#FAAD14',
+            danger: '#FF4D4F',
+            dark: '#1D2129',
+            light: '#F2F3F5'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <!-- 引入Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<!-- 页面头部 -->
+<header class="bg-white shadow-sm py-4 px-6">
+  <div class="max-w-6xl mx-auto flex justify-between items-center">
+    <h1 class="text-xl font-bold text-gray-800">EduPlatform - 全部课程</h1>
+    <a href="index.html" class="text-gray-600 hover:text-blue-600">返回首页</a>
+  </div>
+</header>
+
+
+
+<!-- 主体内容：仅课程列表 -->
+<main class="max-w-6xl mx-auto px-6 py-8">
+  <!-- 课程列表区域 -->
+  <div class="w-full">
+    <!-- 课程列表容器 -->
+    <div id="courseList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- 加载状态 -->
+      <div class="col-span-full text-center py-10">
+        <i class="fa fa-spinner fa-spin text-blue-500 text-3xl mb-4"></i>
+        <p class="text-gray-600">加载课程数据中...</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+
+  window.currentUserRole = (function() {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      // 验证角色是否为有效数值（1/2/3）
+      return [1, 2, 3].includes(userInfo.role) ? userInfo.role : null;
+    } catch (e) {
+      return null;
+    }
+  })();
+
+  // 页面加载时获取课程列表
+  window.addEventListener('DOMContentLoaded', function() {
+    fetchCourses();
+  });
+  // 获取已发布课程列表
+  async function fetchCourses() {
+    try {
+      const response = await fetch('api/student/available', {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.code === 200) {
+        // 成功获取课程列表，处理数据
+        const courses = result.data;
+        renderCourses(courses); // 渲染课程列表
+      } else {
+        console.error('获取课程失败:', result.msg);
+        alert('获取课程失败: ' + (result.msg || '未知错误'));
+      }
+    } catch (error) {
+      console.error('获取课程时发生网络错误:', error);
+      alert('网络错误，无法获取课程列表');
+    }
+  }
+
+
+  // 渲染课程列表到页面
+  function renderCourses(courses) {
+    const courseContainer = document.getElementById('courseList');
+    if (!courseContainer) {
+      console.error('未找到课程列表容器');
+      return;
+    }
+
+    // 清空容器
+    courseContainer.innerHTML = '';
+
+    if (courses.length === 0) {
+      courseContainer.innerHTML = `
+            <div class="text-center py-10">
+                <p class="text-gray-500">暂无课程数据，请先创建课程</p>
+            </div>
+        `;
+      return;
+    }
+
+    // 遍历课程数据，生成HTML
+    courses.forEach(course => {
+      // 格式化日期显示
+      const formatDate = (dateStr) => {
+        if (!dateStr) return '无';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        });
+      };
+
+      const courseCard = document.createElement('div');
+      courseCard.className = 'bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow card-hover border border-gray-100';
+      courseCard.innerHTML = `
+        <div class="relative">
+            <img src="${course.cover || 'default-course.jpg'}" alt="${course.title}" class="w-full h-48 object-cover rounded-t-lg">
+        </div>
+        <div class="p-5">
+            <div class="flex items-center text-sm text-gray-500 mb-2 flex-wrap">
+                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded mr-2 mb-1">课程ID: ${course.id}</span>
+                <span class="bg-gray-50 text-gray-600 px-2 py-0.5 rounded mb-1">分类ID: ${course.category_id || '未分类'}</span>
+                <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded ml-2 mb-1">讲师ID: ${course.teacher_id || '未指定'}</span>
+            </div>
+            <h3 class="font-semibold text-lg mb-2 line-clamp-1">${course.title || '无标题'}</h3>
+            <p class="text-gray-600 text-sm mb-4 line-clamp-2">${course.description ? (typeof course.description === 'string' ? course.description : '无课程描述') : '无课程描述'}</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600 mb-4">
+                <div>
+                    <span class="text-gray-500">开始时间:</span> ${formatDate(course.startTime)}
+                </div>
+                <div>
+                    <span class="text-gray-500">结束时间:</span> ${formatDate(course.endTime)}
+                </div>
+                <div>
+                    <span class="text-gray-500">创建时间:</span> ${formatDate(course.createTime)}
+                </div>
+                <div>
+                    <span class="text-gray-500">更新时间:</span> ${formatDate(course.updateTime)}
+                </div>
+            </div>
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="font-bold text-blue-600 text-lg">¥${course.price ? parseFloat(course.price).toFixed(2) : '0.00'}</div>
+                <div class="flex space-x-2">
+              <button onclick="addCourse(${course.id})"
+                      class="px-3 py-1 bg-blue-50 text-blue-600 rounded text-sm hover:bg-blue-100 transition">购入</button>
+                </div>
+            </div>
+        </div>
+    `;
+      courseContainer.appendChild(courseCard);
+    });
+  }
+  // 购入课程
+  async function addCourse(courseId) {
+    //
+    try {
+      const response = await fetch(`/api/student//enroll/${courseId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          'Content-Type': 'application/json'
+        }
+      })
+      const result = await response.json();
+      if (response.ok && result.code === 200) {
+        alert('购入课程成功');
+      } else if (result.code == 500){
+        alert('您已选课，请勿重复操作');
+      }
+
+    }  catch(error) {
+      console.error('获取课程错误:', error);
+      alert('网络错误，无法获取课程');
+    };
+
+  }
+
+
+
+</script>
+</body>
+</html>

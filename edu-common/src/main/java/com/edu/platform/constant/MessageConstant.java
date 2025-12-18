@@ -41,4 +41,13 @@ public class MessageConstant {    // ---------------------- 通用提示 -------
     public static final String ENROLL_ALREADY_EXISTS = "已选该课程，无需重复选课";
     public static final String ENROLL_NOT_FOUND = "未查询到选课记录";
     public static final String LEARN_RECORD_NOT_FOUND = "未查询到学习记录";
+
+    // ---------------------- 订单相关 ----------------------
+    public static final String ORDER_NOT_FOUND = "订单不存在";
+    public static final String ORDER_ALREADY_EXISTS = "订单已存在";
+
+    // ---------------------- 学生/教师相关 ----------------------
+    public static final String STUDENT_NOT_FOUND = "学生信息不存在"; // 新增：学生信息不存在
+    public static final String TEACHER_NOT_FOUND = "教师信息不存在"; // 新增：教师信息不存在
+    public static final String INVALID_USER_ROLE = "不支持的用户角色"; // 新增：无效角色
 }

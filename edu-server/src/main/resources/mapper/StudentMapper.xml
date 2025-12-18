@@ -8,6 +8,9 @@
             ec.title,
             ec.cover,
             ec.price,
+            ec.teacher_id,
+            ec.start_time,
+            ec.end_time,
             ec.status,
             et.real_name as teacherName,
             ee.enroll_time as enrollTime

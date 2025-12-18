@@ -79,7 +79,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
         // 若有其他静态资源（如前端页面、图片等），可在此添加映射
-        // registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
     }
 
     /**
